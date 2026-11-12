@@ -5,7 +5,9 @@ and ffmpeg for merging/converting.
 """
 import shutil
 import tempfile
+import threading
 import time
+import webbrowser
 from pathlib import Path
 from urllib.parse import quote
 
@@ -17,6 +19,22 @@ app = Flask(__name__)
 
 VIDEO_QUALITIES = {"best": None, "1080": 1080, "720": 720, "480": 480, "360": 360}
 AUDIO_BITRATES = {"320", "192", "128"}
+PORT = 5000
+
+
+def find_ffmpeg() -> str | None:
+    """Use the system ffmpeg if there is one, otherwise the copy bundled with imageio-ffmpeg."""
+    system = shutil.which("ffmpeg")
+    if system:
+        return system
+    try:
+        import imageio_ffmpeg
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except Exception:
+        return None
+
+
+FFMPEG = find_ffmpeg()
 
 # Each download gets its own folder inside the project's downloads/ dir.
 WORK_ROOT = Path(__file__).parent / "downloads"
@@ -36,6 +54,8 @@ def build_options(fmt: str, quality: str, out_dir: str) -> dict:
     opts = {
         "outtmpl": f"{out_dir}/%(title).150B.%(ext)s",
         "noplaylist": True,          # a playlist link downloads just the one video
+        "ffmpeg_location": FFMPEG,
+        "noprogress": True,
         "quiet": True,
         "no_warnings": True,
         "restrictfilenames": False,
@@ -145,6 +165,9 @@ def clean_error(e: Exception) -> str:
 
 
 if __name__ == "__main__":
-    if not shutil.which("ffmpeg"):
-        print("WARNING: ffmpeg not found — install it or mp3/mp4 conversion will fail.")
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    if not FFMPEG:
+        print("WARNING: ffmpeg not found - run: pip install -r requirements.txt")
+    url = f"http://127.0.0.1:{PORT}"
+    print(f"\nVideo downloader is running at {url}\nClose this window to stop it.\n")
+    threading.Timer(1.0, webbrowser.open, args=[url]).start()
+    app.run(host="127.0.0.1", port=PORT, debug=False)

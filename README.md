@@ -6,21 +6,19 @@ Built with Flask and [yt-dlp](https://github.com/yt-dlp/yt-dlp), with ffmpeg doi
 
 ## Run it
 
-You need Python 3.10+ and [ffmpeg](https://ffmpeg.org/download.html) installed.
+You need [Python](https://www.python.org/downloads/) installed (on Windows, tick "Add python.exe to PATH" in the installer). Nothing else.
 
-```bash
-pip install -r requirements.txt
-```
+1. Download this repo: green **Code** button, then **Download ZIP**, and unzip it.
+2. Double-click the launcher:
+   - Windows: `start.bat`
+   - macOS: `start.command`
+   - Linux: `./start.sh`
 
-```bash
-python app.py
-```
-
-Then open http://127.0.0.1:5000.
+The first run takes about a minute to set itself up. After that it starts in a few seconds and opens the page in your browser. Close the launcher window to stop it.
 
 ## Notes
 
-- If downloads from a site stop working, update yt-dlp: `pip install -U yt-dlp`.
+- The launcher updates yt-dlp each time it starts, which fixes most cases of a site suddenly not working.
 - A playlist link downloads only the single video.
 - The app listens on your own machine only. It has no login or rate limiting, so don't expose it to the internet as is.
 - Only download content you own or have permission to save.
